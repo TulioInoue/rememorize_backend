@@ -5,7 +5,7 @@ from uuid import uuid4
 class UsersModel(Base):
     __tablename__ = "users"
     id = Column(Integer, index = True, primary_key = True)
-    id_encoded = Column(String, default = str(uuid4()), unique = True)
+    id_encoded = Column(String, default = lambda: str(uuid4()), unique = True)
     email = Column(String, unique = True)
     encoded_password = Column(String)
     is_active = Column(Boolean, default = True)
