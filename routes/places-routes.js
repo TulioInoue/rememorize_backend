@@ -5,5 +5,7 @@ const router = express.Router();
 
 router.get("/:id", placeControllers.getPlacebyID);
 router.post("/", placeControllers.createPlace);
+router.delete("/delete", placeControllers.deletePlace);
+router.put("/put", placeControllers.putPlace);
 
 module.exports = router;
