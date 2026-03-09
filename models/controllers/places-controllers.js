@@ -23,6 +23,16 @@ const getPlacebyID = (req, res, next) => {
   res.json({ data: place });
 };
 
+const createPlace = (req, res, next) => {
+  const { title, description } = req.body;
+  const createdPlace = { title, description };
+
+  DUMMY_DATA.push(createdPlace);
+
+  return res.status(201).json({ place: createdPlace });
+};
+
 module.exports = {
   getPlacebyID,
+  createPlace,
 };
