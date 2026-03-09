@@ -1,5 +1,6 @@
 const HttpError = require("../http-error");
 const { v4: uuid } = require("uuid");
+const { validationResult } = require("express-validator");
 
 let DUMMY_DATA = [
   {
@@ -25,6 +26,13 @@ const getPlacebyID = (req, res, next) => {
 };
 
 const createPlace = (req, res, next) => {
+  const errors = validationResult(req);
+  console.log(errors);
+
+  if (!errors.isEmpty()) {
+    return next(new HttpError("Could not validade fields", 422));
+  }
+
   const { title, description } = req.body;
   const createdPlace = { id: uuid(), title, description };
 
