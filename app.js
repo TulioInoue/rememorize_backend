@@ -1,44 +1,52 @@
+require("dotenv").config();
+
+// Importar express:
 const express = require("express");
-const pool = require("./database/connection");
+
+// Importar cors:
+const cors = require("cors");
+
+// Importar inicialização das tabelas:
+const create = require("./database/create");
+
+// Importar rotas:
 const placesRoutes = require("./routes/todos");
 const usersRoutes = require("./routes/users");
 
+// Importar variáveis de ambiente:
+const PORT = process.env.PORT;
+const FRONTEND_URL = process.env.FRONTEND_URL;
+
+// Define allowed origins
+const allowedOrigins = [FRONTEND_URL];
+
+// Configure CORS options
+const corsOptions = {
+  origin: function (origin, callback) {
+    // Check if the origin is in the allowed list or if there is no origin (e.g., same-origin requests)
+    if (allowedOrigins.indexOf(origin) !== -1 || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  optionsSuccessStatus: 200, // Some legacy browsers (IE11, various SmartTVs) choke on 204
+};
+
 const app = express();
 app.use(express.json());
+app.use(cors(corsOptions));
 
 // Rota raiz para teste de vida do servidor
 app.get("/", (req, res) => {
   res.send(`<h1>Servidor Vivo!</h1>`);
 });
 
-// app.use("/todos", placesRoutes);
-// app.use("/users", usersRoutes);
+app.use("/todos", placesRoutes);
+app.use("/users", usersRoutes);
 
-// const initDb = async () => {
-//   const queryText = `
-//     CREATE TABLE IF NOT EXISTS users_mern1 (
-//       id INT AUTO_INCREMENT PRIMARY KEY,
-//       first_name VARCHAR(50) NOT NULL,
-//       last_name VARCHAR(50) NOT NULL,
-//       email VARCHAR(50) UNIQUE,
-//       password VARCHAR(255) NOT NULL,
-//       is_active INT DEFAULT 1,
-//       created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-//     );
-//   `;
-//   try {
-//     console.log("Tentando inicializar tabelas...");
-//     await pool.query(queryText);
-//     console.log("Tabelas verificadas/criadas com sucesso.");
-//   } catch (err) {
-//     console.error("Erro ao inicializar banco:", err.message);
-//   }
-// };
-
-// A MUDANÇA ESTÁ AQUI:
-app.listen(5000, "0.0.0.0", () => {
-  console.log("Server rodando na porta 5000");
-
-  // O banco inicializa aqui "por fora" do fluxo principal
-  // initDb();
-});
+if (create.initDb()) {
+  app.listen(PORT, () => {
+    console.log(`Server rodando na porta ${PORT}`);
+  });
+}
