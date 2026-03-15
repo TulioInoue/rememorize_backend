@@ -2,6 +2,8 @@ const HttpError = require("../http-error");
 const { validationResult } = require("express-validator");
 const bcrypt = require("bcrypt");
 const pool = require("../../database/connection");
+const { v4: uuidv4 } = require("uuid");
+const jwt = require("jsonwebtoken");
 
 const createUser = async (req, res, next) => {
   const errors = validationResult(req);
@@ -15,13 +17,13 @@ const createUser = async (req, res, next) => {
   try {
     const newEncryptPassword = await bcrypt.hash(password, 10);
 
-    const query = `
+    pool.query(
+      `
     INSERT INTO rememorize_users (firstName, lastName, email, password)
     VALUES (?, ?, ?, ?)
-    `;
-    const values = [firstName, lastName, email, newEncryptPassword];
-
-    pool.query(query, values);
+    `,
+      [firstName, lastName, email, newEncryptPassword],
+    );
 
     res
       .status(201)
@@ -30,6 +32,43 @@ const createUser = async (req, res, next) => {
     console.log(error);
     res.status(500).json({ message: "Could not create user.", type: "error" });
   }
+};
+
+const loginUser = async (req, res, next) => {
+  const { email, password } = req.body;
+  const [users] = await pool.query(
+    "SELECT * FROM rememorize_users WHERE email = ?",
+    [email],
+  );
+  const user = [users][0];
+
+  if (!user) {
+    return next(new HttpError("Invalid Credentials", 403));
+  }
+
+  const isValidPassword = await bcrypt.compare(password, user.password);
+  if (!isValidPassword) {
+    return next(new HttpError("Invalid Credentials", 403));
+  }
+
+  const idEncoded = uuidv4();
+
+  await pool.query("UPDATE rememorize_users SET idEncoded = ? WHERE id = ?", [
+    idEncoded,
+    user.id,
+  ]);
+
+  const token = jwt.sign(
+    {
+      idEncoded: idEncoded,
+      firstName: user.firstName,
+      lastName: user.lastName,
+    },
+    process.env.JWT_KEY,
+    {
+      expiresIn: "24h",
+    },
+  );
 };
 
 module.exports = {

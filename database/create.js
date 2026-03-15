@@ -9,6 +9,7 @@ const initDb = async () => {
       email VARCHAR(50) UNIQUE,
       password VARCHAR(255) NOT NULL,
       isActive INT DEFAULT 1,
+      idEncoded VARCHAR(50) DEFAULT NULL,
       createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `;
