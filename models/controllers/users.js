@@ -17,7 +17,7 @@ const createUser = async (req, res, next) => {
   try {
     const newEncryptPassword = await bcrypt.hash(password, 10);
 
-    pool.query(
+    await pool.query(
       `
     INSERT INTO rememorize_users (firstName, lastName, email, password)
     VALUES (?, ?, ?, ?)
@@ -36,20 +36,16 @@ const createUser = async (req, res, next) => {
 
 const loginUser = async (req, res, next) => {
   const { email, password } = req.body;
-  const [users] = await pool.query(
+  const [rows] = await pool.query(
     "SELECT * FROM rememorize_users WHERE email = ?",
     [email],
   );
-  const user = [users][0];
+  const user = rows[0];
 
-  if (!user) {
-    return next(new HttpError("Invalid Credentials", 403));
-  }
+  if (!user) return next(new HttpError("Invalid Credentials", 403));
 
   const isValidPassword = await bcrypt.compare(password, user.password);
-  if (!isValidPassword) {
-    return next(new HttpError("Invalid Credentials", 403));
-  }
+  if (!isValidPassword) return next(new HttpError("Invalid Credentials", 403));
 
   const idEncoded = uuidv4();
 
@@ -61,16 +57,20 @@ const loginUser = async (req, res, next) => {
   const token = jwt.sign(
     {
       idEncoded: idEncoded,
-      firstName: user.firstName,
-      lastName: user.lastName,
     },
     process.env.JWT_KEY,
     {
       expiresIn: "24h",
     },
   );
+
+  return res.status(200).json({
+    message: "Login done successfully",
+    token: token,
+  });
 };
 
 module.exports = {
   createUser,
+  loginUser,
 };

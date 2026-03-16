@@ -17,6 +17,10 @@ router.post(
   usersControllers.createUser,
 );
 
-router.post("login", [check("email").isEmail(), check("password").notEmpty()]);
+router.post(
+  "/login",
+  [check("email").isEmail(), check("password").notEmpty()],
+  usersControllers.loginUser,
+);
 
 module.exports = router;
