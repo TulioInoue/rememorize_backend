@@ -10,7 +10,7 @@ const cors = require("cors");
 const create = require("./database/create");
 
 // Importar rotas:
-const placesRoutes = require("./routes/todos");
+const placesRoutes = require("./routes/places");
 const usersRoutes = require("./routes/users");
 
 // Importar variáveis de ambiente:
@@ -42,8 +42,8 @@ app.get("/", (req, res) => {
   res.send(`<h1>Servidor Vivo!</h1>`);
 });
 
-app.use("/todos", placesRoutes);
 app.use("/users", usersRoutes);
+app.use("/todos", placesRoutes);
 
 if (create.initDb()) {
   app.listen(PORT, () => {

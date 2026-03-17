@@ -16,6 +16,7 @@ const check_auth = async (req, res, next) => {
 
     if (Ids.length === 0) throw new Error();
 
+    // Criamos o campo 'middleware' e inferimos a ele o valor do user_id
     req.middleware = { userID: Ids[0].id };
     next();
   } catch (err) {

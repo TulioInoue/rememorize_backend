@@ -1,7 +1,7 @@
 const pool = require("./connection");
 
 const initDb = async () => {
-  const queryText = `
+  const create_users_query = `
     CREATE TABLE IF NOT EXISTS rememorize_users (
       id INT AUTO_INCREMENT PRIMARY KEY,
       firstName VARCHAR(50) NOT NULL,
@@ -13,8 +13,26 @@ const initDb = async () => {
       createdAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     );
   `;
+
+  const create_places_query = `
+    CREATE TABLE IF NOT EXISTS rememorize_places (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    place VARCHAR(50) NOT NULL,
+    description VARCHAR(255) NOT NULL,
+    rating INT,
+    userId INT,
+    
+    -- Criando o vínculo da Foreign Key
+    CONSTRAINT fk_user_place 
+    FOREIGN KEY (user_id) 
+    REFERENCES rememorize_users(id)
+    ON DELETE CASCADE
+    );
+  `;
+
   try {
-    await pool.query(queryText);
+    await pool.query(create_users_query);
+    await pool.query(create_places_query);
     return true;
   } catch (err) {
     return false;
