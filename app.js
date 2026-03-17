@@ -43,7 +43,7 @@ app.get("/", (req, res) => {
 });
 
 app.use("/users", usersRoutes);
-app.use("/todos", placesRoutes);
+app.use("/places", placesRoutes);
 
 if (create.initDb()) {
   app.listen(PORT, () => {

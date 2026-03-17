@@ -20,13 +20,9 @@ const initDb = async () => {
     place VARCHAR(50) NOT NULL,
     description VARCHAR(255) NOT NULL,
     rating INT,
-    userId INT,
-    
-    -- Criando o vínculo da Foreign Key
-    CONSTRAINT fk_user_place 
-    FOREIGN KEY (user_id) 
-    REFERENCES rememorize_users(id)
-    ON DELETE CASCADE
+    imageUrl VARCHAR(255) NOT NULL,
+    s3Key VARCHAR(255) NOT NULL,
+    userId INT
     );
   `;
 

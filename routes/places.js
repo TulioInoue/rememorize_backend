@@ -1,5 +1,6 @@
 const express = require("express");
 const { check } = require("express-validator");
+const S3 = require("../S3/settings")
 
 // Importar controllers:
 const placesController = require("../models/controllers/places");
@@ -12,6 +13,7 @@ router.use(middleware);
 
 router.post(
   "/create",
+  S3.upload.single('image'),
   [
     check("place").notEmpty(),
     check("description")
@@ -23,7 +25,7 @@ router.post(
   ],
   placesController.createPlace,
 );
-router.get("/places", placesController.getAllPlaces);
-router.get("/user-places", placesController.getUserPlaces);
+router.get("/all", placesController.getAllPlaces);
+router.get("/user", placesController.getUserPlaces);
 
 module.exports = router;

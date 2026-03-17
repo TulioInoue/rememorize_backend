@@ -3,34 +3,39 @@ const HttpError = require("../http-error");
 
 const createPlace = async (req, res, next) => {
   const { place, description, rating } = req.body;
+  const imageUrl = req.file.location;
+  const s3Key = req.file.key;
 
   const userId = req.middleware.userId;
-  console.log(`userId: ${userId}`);
 
   try {
     await pool.query(
-      `INSERT INTO rememorize_places (place, description, rating, userId) VALUES (?, ?, ?)`,
-      [place, description, +rating, userId],
+      `INSERT INTO rememorize_places (place, description, rating, imageUrl, s3Key, userId) VALUES (?, ?, ?, ?, ?, ?)`,
+      [place, description, +rating, imageUrl, s3Key, userId],
     );
+    return res
+      .status(201)
+      .json({ message: "place review created successfully." });
   } catch (err) {
     return next(new HttpError("Could not create place", 500));
   }
 };
 
 const getAllPlaces = async (req, res, next) => {
-  const [rows] = pool.query(`SELECT * FROM rememorize_places`);
+  const [rows] = await pool.query(`SELECT * FROM rememorize_places`);
 
-  return res.json({ data: rows });
+  return res.json({ places: rows });
 };
 
 const getUserPlaces = async (req, res, next) => {
   const userId = +req.middleware.userId;
 
-  const rows = pool.query(`SELECT * FROM rememorize_places WHERE userId = ?`, [
-    userId,
-  ]);
+  const [rows] = await pool.query(
+    `SELECT * FROM rememorize_places WHERE userId = (?)`,
+    [userId],
+  );
 
-  return res.json({ data: rows });
+  return res.json({ places: rows });
 };
 
 module.exports = {
