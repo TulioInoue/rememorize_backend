@@ -45,7 +45,6 @@ const getUserPlaces = async (req, res, next) => {
 
 const deleteUserPlace = async (req, res, next) => {
   const image_id = req.body.id;
-  console.log(image_id);
 
   try {
     const [rows] = await pool.query(
@@ -53,7 +52,6 @@ const deleteUserPlace = async (req, res, next) => {
       [image_id],
     );
 
-    console.log("rows:", rows);
     // Deletar do S3 a imagem de acordo com a url arquivada no RDS:
     await settings.s3Client.send(
       new DeleteObjectCommand({
